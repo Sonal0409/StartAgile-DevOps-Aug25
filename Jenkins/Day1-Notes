@@ -1,0 +1,58 @@
+Install Java 17 or 21
+
+# sudo su -
+ 
+# apt update -y
+# apt install openjdk-17-jdk -y
+
+Install Jenkins:
+======================================
+sudo wget -O /etc/apt/keyrings/jenkins-keyring.asc https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+echo "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc]" https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+sudo apt-get update
+sudo apt-get install jenkins -y
+systemctl status jenkins
+
+Go to the browser 
+enter URL as http://<publicIP of VM>:8080
+
+If jenkisn is installed on your windows machine or mac machine - give localhost:8080
+
+Jenkins_HOME directory : /var/lib/jenkins
+========================================================
+This is just for your information:
+
+Note: if you have to update the port number of Jenkins then make changes in the file :
+
+# vim /etc/default/jenkins 
+
+make changes to entry :
+# port for HTTP connector (default 8080; disable with -1)
+HTTP_PORT=8080
+
+Restart Jenkisn after this
+# systemctl restart jenkins
+=========================================================
+
+Demo 1: Create a Jenkins Freestyle job to run Linux commands 
+
+Demo2: Integrate Jenkins with GIT and Github
+
+Create a new job in jenkins
+Click on + sign to create new item/job/project
+Give a name to the job : CloneRepo
+Select freestyle project and click on OK button
+On the project click on Source code management
+Select git option
+Give git hub repo path
+https://github.com/Sonal0409/DevOpsCodeDemo.git
+
+Branch name as ===>  Master
+
+Save the job
+
+Click on Build now
+
+Repository will be cloned in jenkins workspace
+
+You can go to job → workspace folder to see the files
