@@ -1,0 +1,196 @@
+
+Creation of new User
+*************
+
+Jenkins--> Manage Jenkins--> Create/Add Users ----> left side ---> add User
+Add Name as DEV-->Last name -->Password--> Confirm Password--> Email --> submit
+
+New user created.
+
+*****************
+MANAGE AUTHORIZATION
+
+Matrix based Security
+
+ Goto MangeJenkins--->Global security --> Authorization Section---> select Matrix based Security
+ ---> Click on Add Users --> write admin---> give adminsitation access
+----> click on ADD --> write dev--> give Read access and job read access
+--> logout as admin -- login as Dev --> no jobs, only read access
+--> logout as Dev ---> login as Admin
+
+Project based Matrix Security
+
+ Goto MangeJenkins--->Global security --> Authorization Section---> Select Project based Matrix Security
+-->   Click on Add Users --> write admin---> give adminsitation access
+----> click on ADD --> write dev--> give Read access 
+--> go to Job1 --> configure--> general --> Check Enable project based security
+--> Add user as Dev --> give him access to read, build, write, workspace, build
+
+--> go to Job1 --> configure--> general --> Check Enable project based security
+--> Add user as Dev --> give him access to read
+
+Save file
+
+Logout as admin--> login as Dev --> you will see both the jobs , job2 will be only read access.
+
+Logout as dev and login as Admin
+
+
+
+EMAIL NOTIFICATION
+
+*********************
+
+--> Manage Jenkins--> Extended Email Notifications
+Give:
+
+Smtp server ==> smtp.gmail.com
+port : 465
+
+Click on advance 
+SMTPUsername: 
+Password:  -->  --> add app password
+
+Check SSL checkbox
+
+Save the chnages
+
+Now go back to Jenkins-->  Job1 --> configure--> post build actions-->edit email notification-->
+
+ ---> recipient list as ==> admin123@....
+--> scroll down select Attach build log
+--> Click on ADVANCE
+--> scroll down to TRIGGER
+--> Remove Failures
+--> Click on Add trigger button below and select Always 
+---> select recipents list and remove developers.
+
+Save and build now on Job.
+
+Email will be sent with log
+
+======================================================
+
+Delivery Pipeline in Jenkins
+
+*******************************
+
+Jenkins--> Manage Jenkins-->Global Tool configuration
+
+Go to JDK section
+In this give:
+1. Uncheck -- install automatically
+2. JDK name as myjava
+3. Go to server type 
+# echo $JAVA_HOME ==> will give java location
+JAVA_HOME =
+/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.265.b01-1.amzn2.0.1.x86_64
+
+Save it.
+
+Under GIT==> leave it same 
+
+Under maven ==> lets install it automatically
+Type mymaven and check the install automatically box.
+Save the changes
+
+
+****************************************
+
+CREATION OF COMPILE JOB
+***********************************
+
+1. new Job --complie-->freestyle project
+2. Source code management --> select git
+--->give git path ===> https://github.com/Sonal0409/DevOpsCodeDemo.git
+
+3. build ==> select invoke top level maven targets
+   select maven version===> mymaven
+    goal ==> compile
+4. save ==> build now 
+So all the compiled files will be present at this location
+==> look for this line in console output at the end on jenkins
+Compiling 13 source files to /var/lib/jenkins/workspace/compile1/target/classes
+
+5. Go to workspace on the left side of jenkins Job compile
+In the folder go to ==> target folder==> go to classes/com/edurekademo
+==> click on edurekademo==> got to utilities==> all class files will be there which have recently been compiled.
+******************************
+2nd JOB ==>Code Review
+*********************
+
+Jenkins--> new item--> Name= code Review==> freestyle project
+==> source codemanagement==>select git==> 
+give git repo name https://github.com/Sonal0409/DevOpsCodeDemo.git
+
+Step 2: build ==> invoke top level maven target==>
+ select maven version==>mymaven ==> goal = pmd:pmd
+
+save==> build now
+==> click on build number and see the console
+
+Goto Workspace on the left side of jenkins Job code review
+In the folder go to ==> target folder ==> you will find pmd.xml file.
+
+CONVERT FILE TO TREND REPORT
+*******************************
+ manage jenkins--> manage plugins--> available --> Search for warning next gen plugin--> install it.
+Retsrat in case plugin fails installation.
+
+Now go to the job Code Review==> go to post build actions ==> select recordcomplier warnings and static result analysis
+
+Under tool ==> select PMD
+under report file format ==> give path of pmd.xml file ie:  target/pmd.xml
+or as mentioned in message below : copy **/pmd.xml  ( no quotes)
+
+Save the file and build now.
+
+After the build is successfull, you will see PMD Warnings
+
+So you will see 12 new warning have been generated on the code.
+Scroll down 
+Under package click on first one to check warnings.
+
+*********************************
+JOB3: Testing --Unit Test report
+********************************
+
+1. jenkins--> new item--> Name= unitTest==> freestyle project
+==> source codemanagement==>select git==> give git repo name https://github.com/Sonal0409/DevOpsCodeDemo.git
+2. build ==> invoke top level maven target==> select maven version==>mymaven ==> goal = test
+
+3. Save and Build now.
+
+4. Check the workspace
+
+5. surefire-reports will be present
+
+But we cannot understand them easily. So lets generate understandable reports by using Junit reports option under post build actions
+
+6. Go back to job==> post build actions==> select junit test result job
+==> give target/surefire-reports/*.xml  ===>under test report xml
+This is path where xml files are there.
+Here *.xml is as we want to use all the xml files
+
+7. Save and build again
+
+Go to build number ===> on left side you will see Test Result 
+Click on it and you can see all pass and fail details of the tests
+
+**********************************
+Job5 Package Job
+***************************
+
+Go to jenkins--> new item--> Name= Package==> freestyle project
+==> source codemanagement==>select git==> give git repo name https://github.com/Sonal0409/DevOpsCodeDemo.git
+ 
+build ==> invoke top level maven target==>mymaven
+
+ goal = package
+
+==> save==> build now
+==> click on build number and see the console
+
+==> go to workspace ==> target/addressbook.war
+
+
