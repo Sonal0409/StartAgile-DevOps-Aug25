@@ -1,0 +1,514 @@
+Jenkins TRIGGERS
+
+TRIGGERS are used - If we want to automatically trigger a Job
+
+1. Trigger builds remotely (e.g., from scripts)
+
+Select the above very first option
+give Authentication token as : token1 
+any unique token number
+
+And then copy the path provided below in this format:
+JENKINS_URL/job/job4/build?token=TOKEN_NAME 
+
+
+update the above url in this way:
+Jenkins_URL: Curent url :http://3.140.252.165:8080
+Token_NAME: token number/name provided above
+
+Take this path and execute on anyother browser.
+
+http://3.140.252.165:8080//job/job4/build?token=token1
+
+Now generate API token for the USER and run below command on terminal.
+
+curl -l -u admin:<apiToken> http://<publicIP>:8080/job/CloneRepo/build?token=token1
+
+2. GitHub hook trigger for GITScm polling
+
+> Select the above option
+
+Save the job and now go to git hub
+
+Always save the job and then only  go to git hub, perform these steps
+
+go to the repository setting
+select webhooks on left side
+delete if any exisitng webhook
+
+click on createwebhook on right side
+
+provide following information:
+
+Payload URL : jenkinsurl/github-webhook/ ===> http://3.140.252.165:8080/github-webhook/
+
+Content type : select application/json
+
+Secret: no need of any value
+
+Which events would you like to trigger this webhook?
+
+select first option -- Just the push event.
+
+Select Active
+click on add webhook.
+
+now make some changes in repo,
+go to jenkins--> you will see a new build has been created
+
+3. Trigger periodically
+
+Create anew Job--> build trigger--> build preodically --> give */2 * * * * --> Save and build now
+All build will be genrated automatically every 2 mins
+
+4. Trigger by POLL SCM
+
+Create a new Job-->Source code management--> Add git path
+
+https://github.com/Sonal0409/GITHUBJENKINSDEMO
+
+Build Triggers--> Poll SCM --> * * * * *
+
+Build will be generated each time there is a chnage in the repository only.
+
+*********************************
+
+
+
+
+
+
+
+
+
+
+
+Demo 4: Jenkins Pipeline 
+
+
+Jenkins allows us to create multiple task in one single job.
+
+Whenever a user has to preform set of tasks one after other (in a sequence) or in parallel, it can easily be done using 
+pipleine project template in Jenkins
+
+Pipleines in jenkins are nothing but set of task executed in sequence(by default) 
+
+When a user is creating a pipeline we will have to write code for it.
+The pipeline code is based on Groovy scripting which is Domain specific lanaguage
+In jenkins pipeline code using 2 types of syntax
+
+ > scripted pipeline syntax
+=======================================
+> scripted pipeline syntax always starts with a keyword called as node
+> When Jenkins version1 came in to the market, the admin used scripted pipeline syntax to write pipeline code
+> scripted pipeline syntax is difficult to read and write.
+> there is no structure or no definite style which writitng the code
+> The code written scripted pipeline syntax is not validated by jenkins
+> This syntax is no longer used
+> if the pipeline fails, you have to run the pipeline from the begining
+
+ > Declarative pipeline syntax
+========================================
+> Declarative pipeline syntax always starts with a keyword called as pipeline
+> With jenkins version2, Declarative pipeline syntax was introduced
+> This is well structured syntax, where user is provided with definite pipeline sections
+> we need to just declare the pipeline code
+> It declarative in nature, syntax is very simple
+> if the pipeline fails, you can restart the pipeline form the point that it had failed previously
+> Stages in pipeline means Job to be executed
+> Every stage will have a Name in the pipeline, steps to be executed, post build steps, 
+> jenkins provides a pipeline code snippet generator, that helps your to learn pipeline scripting very fast
+
+Syntax:  key 'value' 
+for example: name 'Jenkins'
+             sh 'echo "hello All"'
+
+
+
+1. Structure of Declarative pipeline syntax
+
+
+pipeline{
+
+// Write a comment
+// All the pipeline code will be written inside this block
+tools{
+      // it is not mandatory 
+      // in this section we will write names of tools that we ahve configured in manage jenkins--tools section
+}
+
+agent{
+  // this is a mandatory section
+  // give the name of VM where the pipeline has to be executed 
+}
+
+triggers{
+  // add poll SCM or periodic trigger to tell when should the pipeline run 
+
+}
+
+parameters{
+  // write custom variables and there values
+  // these custom variables can be used in the pipeline to remove hard coded data
+  // different types of variable: custom variables, environment variables
+}
+
+environment{
+   // to define environment variables for the pipeline
+}
+
+stages{
+  // a set of stage 
+   // every stage has a unique name
+     stage('Job1'){
+
+       steps{
+           
+          // here you give the commands/scripts to be executed 
+       }
+       post{
+          // after the steps have been executed, what should we do
+          success{
+            // if the steps are success what should we do
+          }
+          failure{
+          // if the steps are failed what should we do
+          }
+          always {
+          // if the steps are success or failed  what should we do
+          }
+       }
+      
+     }
+     stage('Job2'){
+
+     steps{
+        // here you give the commands/scripts to be executed 
+     }
+    
+     
+     }
+     stage('Job3'){
+
+     steps{
+        // here you give the commands/scripts to be executed 
+     }
+    
+     
+     }
+
+
+}
+
+
+}
+
+===============================================================
+2. Best Practices while writing pipeline code:
+
+- Instead of using scripted pipeline syntax use declarative pipeline syntax
+- Maintain the pipeline code in version control tool rather than to writing in Jenkins server 
+- Make use of different types of tool section when we need to pass 
+- We need to run our pipeline on agent server for distributing task on other machines.
+- Always include separate stages for each of SDLC stage like - compiling , testing, deployment, release to more organise the pipeline.
+- Make use of inbuilt pipeline syntax generator to learn for various pipeline syntax.
+- Any command to be run in the pipeline on a linux agent we have to run via 'sh'
+
+1)Use declarative pipeline syntax instead of scripted pipeline syntax
+2)Maintain the pipeline code in the VCS rather than Jenkins server 
+3)Use the tools section and declare tools ; this is useful to pass and change the version of the tools. the tool name configured should be the same in the script- Note 
+4)For better allocation of resources , try to run the pipeline in agents. agent any = current server 
+5)Try to Distribute the code into different stages ex - a stage for each of the SDLC phase.
+6)for ease of code generation , generate the Code in the Jenkins UI  using inbuilt pipeline generator and then save in GIT 
+  -----
+
+
+3. Jenkins Pipeline to Review the Code
+
+Download the following plugins before you run the pipeline:
+
+Go to manage Jenkins → Plugins → available plugins → search for warnings plugins → select it and click on install button
+
+Create a pipeline job → add the below code and run it
+
+
+pipeline{
+    tools{
+        maven 'mymaven'
+    }
+    agent any // any = any available server where jenkisn can run the pipleine
+    
+    stages{
+        stage('Checkout Code'){
+            steps{
+                git 'https://github.com/Sonal0409/DevOpsCodeDemo.git'
+            }
+        }
+        stage('Compile Code'){
+            steps{
+                sh 'mvn compile'
+            }
+        }
+       stage('Review Code'){
+            steps{
+                sh 'mvn pmd:pmd'
+            }
+            post{
+                success{
+                    recordIssues sourceCodeRetention: 'LAST_BUILD', tools: [pmdParser(pattern: '**/pmd.xml')]
+                }
+            }
+        }
+    }
+}
+
+
+
+
+4. Parameterized Build Pipeline:
+
+In this pipeline we learn how to use parameter block in the pipeline:
+
+
+ pipeline {
+       agent any
+       
+       parameters {
+       
+           string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
+   
+           text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
+   
+           booleanParam(name: 'TOGGLE', defaultValue: true, description: 'Toggle this value')
+   
+           choice(name: 'CHOICE', choices: ['One', 'Two', 'Three'], description: 'Pick something')
+   
+           password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
+       }
+       stages {
+           stage('Example') {
+               steps {
+                   echo "Hello ${params.PERSON}"
+   
+                   echo "Biography: ${params.BIOGRAPHY}"
+   
+                   echo "Toggle: ${params.TOGGLE}"
+   
+                   echo "Choice: ${params.CHOICE}"
+   
+                   echo "Password: ${params.PASSWORD}"
+               }
+           }
+       }
+   }
+
+
+Save the pipeline → build it → first time it will run with default value→ next time you will see build with parameter option.
+
+
+
+5. Condition and  Parameterized build pipeline
+
+In this pipeline we learn parameter blocks with choice parameters and apply conditions using when keyword.
+
+
+Pipeline code with When condition:
+
+pipeline{
+
+tools{
+  maven 'mymaven'
+}
+
+agent any 
+
+parameters{
+    choice(name: 'ENV', choices: ["","Dev","QA"])
+}
+
+stages{
+
+stage('Build on Dev ENV'){
+  when{  // when should this stage steps be exeucted 
+     expression{params.ENV == "Dev"}   // expression = condition
+  }
+steps{
+   git 'https://github.com/Sonal0409/DevOpsCodeDemo.git'
+   sh 'mvn package'
+}
+
+}
+
+stage('Test on QA ENV'){
+
+when{
+   expression{params.ENV == "QA"}   // expression = condition
+}
+
+ 
+steps{
+   git 'https://github.com/Sonal0409/DevOpsCodeDemo.git'
+   sh 'mvn test'
+}
+
+}
+
+}
+
+}
+6. Script in pipeline stage that uses conditions, variables storing maps
+
+pipeline{
+
+agent any 
+
+tools{
+ maven 'mymaven'
+}
+parameters{
+   choice(name: 'ENV', choices: ["Dev","QA"])
+}
+
+stages{
+
+   stage('build code in your ENV'){
+     steps{
+           script{
+                // define a variable in the script which is of type MAP 
+            def mvnCMD = [
+                  Dev : 'compile',
+                  QA : 'package'            
+            ]
+
+          // a variable storing another variable as value
+            def CMD = mvnCMD[params.ENV]  // compile
+
+            // use the variable in the mvn command 
+            git 'https://github.com/Sonal0409/DevOpsCodeDemo.git'
+            sh "mvn ${CMD}"
+
+            
+
+           }   
+     }
+   }
+
+}
+
+}
+
+
+
+
+7. Error Handling + Try and catch block+Variables + Retry and wait time
+
+
+pipeline{
+agent any
+
+tools{
+maven 'mymaven'
+}
+
+stages{
+    
+
+stage('test Code')
+{
+steps{
+        script{   // groovy script
+                  // declare 3 variables which will store number value
+        int  maxRetries = 3   // int = integer = data type store in variable maxRetries 
+        int retries = 0  
+        boolean success = false
+
+// we are using a keyword called as while which is representing a loop
+
+      while(retries<maxRetries && !success){
+
+          try{
+                 sh 'mvn tst'  // risk code that will fail
+                 success = true // if execution of line 58 is successful then exit the loop
+          }
+          catch(Exception e){
+                retries++  // increment the value of retries by 1
+                echo "Attempt ${retries} failed. Retrying.."  
+                sleep(10)  // wait for 10 seconds before retrying
+          }
+      
+      }  
+      if(!success)  // execution of the steps have failed 
+      {
+      error("All attempts have failed")
+      }
+      
+        
+        }
+}
+}
+
+
+}
+}
+
+
+8. Approval and abort pipeline
+
+pipeline{
+agent any
+tools{
+maven 'mymaven'
+}
+stages{
+  stage('CloneCode')
+       {
+           steps{
+           git 'https://github.com/Sonal0409/DevOpsCodeDemo.git'
+           }
+       }
+       stage('PackageCode')
+            {
+                steps{
+                sh 'mvn package'
+                script {
+                 timeout(time: 10, unit: 'MINUTES'){
+                 input(id: 'DeployGate', message: 'Continue to Deploy')
+                }
+                }
+            }
+            }
+      stage('DeployCode')
+                 {
+                     steps{
+                     echo 'Deployment Completed'
+                     }
+                 }
+            
+}
+}
+
+9. Jenkinsfile
+
+Always write and maintain the pipeline code in Version control tool github on the given branchIn jenkins we will create a job → obtain the pipeline code and execute it.
+
+The name of the file is always Jenkinsfile
+This file has no extension.
+This file is preferred to be in the root directory of the repo
+
+But if we have to create pipeline for a different branch we cna but the jenkins file in that particular branch
+
+You have a repository with multiple branches
+We want to create pipeline jobs for each branch except for production branch
+The pipeline job should be created automatically for each branch and the name of Pipeline job should be the same as the branch name.
+
+So how can we create this??
+We have to use the concept of Jenkinsfile
+
+Step 1:
+
+As devops eng.. We will add Jenkinsfile in every branch for which pipeline job has to be created
+We will not add any Jenkinsfile in the production branch as I do not want any pipeline job for it.
+
+Step 2:
+In jenkins we have to create 1 job → that will scan your repo and every branch for jenkisfile
+This job will create pipeline job for the branch that meets the criteria(jenkisnfile present)
