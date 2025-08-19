@@ -512,3 +512,10 @@ We will not add any Jenkinsfile in the production branch as I do not want any pi
 Step 2:
 In jenkins we have to create 1 job → that will scan your repo and every branch for jenkisfile
 This job will create pipeline job for the branch that meets the criteria(jenkisnfile present)
+
+
+Create a job in jenkin s--> select pipeline as job type --> go to configure --> select pipleine form SCM --> give the URL :https://github.com/Sonal0409/Jenkinsfile-demo-18aug.git
+branch name = master, script is Jenkinsfile (leave it as it is)
+save the job and run.
+
+
