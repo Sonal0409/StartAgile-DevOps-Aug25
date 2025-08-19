@@ -1,0 +1,96 @@
+Jenkins + Linux Setup
+
+Step 1: create a worker/agent node (VM of type Amazon linux2) on AWS
+
+Step 2: Install git and java on the worker node
+
+# yum install git -y
+# sudo amazon-linux-extras install java-openjdk11
+
+Step 3: Create remote root directory on the worker & give permissions for access
+
+cd /tmp
+
+mkdir jenkinsdir
+
+Ptha: /tmp/jenkinsdir
+
+Give permission to remote root directory
+
+chmod -R 777 /tmp/jenkinsdir
+
+Step 4: Go to master machine and update Jenkins URL
+
+Manage Jenkins> Configure System > update the latest jenkins URL to the current url > save the page
+
+
+
+
+Step 6: Configure worker/agent node on master
+
+Manage Jenkins> Manage nodes and clouds
+
+Number of executors= executor = Job ==> 1
+remote root directory : /tmp/jenkinsdir
+label : linux_node
+Usage: only build jobs with matching labels
+
+
+Launch method: launch agents via SSH
+
+Host: private IP of agent node
+
+Credentials: click on Add button > click on jenkins
+
+Select Kind : SSH username and private key
+
+username: ec2-user
+
+Private key: you will get the private key of the agent node in your local laptop> downloads folder
+
+got the downloads folder of laptop, search for the key(.pemfile)
+
+open the file with notepad and copy the entire text
+
+paste the text in jenkins > under private key
+
+
+Now select the credials from the drop down.
+
+
+step 7: Host Key Verification Strategy - set as No host key verfication- last option in drop down
+
+
+Step 7: check if connection is succesfull
+
+Step 8: add agent in the piepline
+============================
+Jenkins + Windows setup
+
+Step 1: Go to Manage Jenkins ---> SYSTEM ---> Check the Jenkins URL is same as URL of browser --> Save
+Step 2: Go to Manage Jenkins---> SECURITY --> Scroll down to AGENTS-->select RANDOM radio button--> Save
+Step 3: Go to Manage Jenkins---> MAnage Nodes and Clouds  --> New Node
+
+Select New Node--> give name as Winslave--> select radio button permanamet Agent
+
+Name : winslave
+Description: give windows 10 machine 
+==> # of executors = 1 ==> means number of jobs that we want to run on this slave node. Let it be 1 for now
+===> Remote root directory ==> C:\jenkinsdir
+Location of a directory folder on your windows machine , so that jenkins can create a workspace folder and store all the files. As we have seen earlier while executiong jobs.
+For this --> got to C drive and create an emapty folder.
+C:\jenkinsdir
+
+====>  Label : win_slave ==> this is like a tag to slave machine. This is how we will identify the slave machine--> remeber this
+
+===> Usage: 
+Select 2nd option: Only build jobs with label expressionmatching the job :
+This means for which ever job we will give label as win_slave that job only will run on this job.
+
+===> Launch Method : select option : select the 1st option
+
+Scroll down
+
+Add tools
+
+Add git path as C:\Program Files\Git\cmd\git.exe
