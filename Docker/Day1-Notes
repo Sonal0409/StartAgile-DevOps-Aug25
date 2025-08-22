@@ -36,3 +36,20 @@ COntainer will be exited
 Start the container :
 
 18. docker start cont1
+19. docker rm -f $(docker ps -aq)
+
+20. docker run -d --name=web nginx
+
+21. docker exec -it web bash
+
+exit to come out
+
+
+
+
+
+
+
+
+
+
