@@ -1,0 +1,95 @@
+Dockerfile
+
+Dockerfile
+
+- it is a simple text file 
+- the name of this file is dockerfile or Dockerfile 
+- this file is written using docker keywords and arguments
+- this file is version controller in github
+
+Syntax :
+
+keyword argument/command
+
+FROM : 
+with this keyword we will give name of a docker base image name, over which we want to do our customization
+This is the first keyword of the dockerfile 
+RUN : 
+with this keyword we will write commands that are need to install/upgrade/remove packages on the container 
+Using run keyword we can run any command on the container 
+When the container is launched, these command will already be executed and complete 
+COPY :
+Copy a set of files from host machine to container directory
+ADD :
+Copy a set of files from host machine to container directory
+But ADD keyword can also copy tar files on the container 
+ADD keyword can also download files on the container from remote location
+
+CMD :
+Give the final command that will keep running on the container 
+That final that should run on the conatiner can be replaced by a new command given by user at runtime
+
+ENTRYPOINT:
+Give the final command that will keep running on the container 
+That final that should run on the conatiner CANNOT be replaced by a new command given by user at runtime
+The new command will go and append to the final command 
+
+EXPOSE: give the port number were the application will be exposed on the container
+===================================
+
+FROM ubuntu
+RUN apt-get update
+RUN apt-get install nginx -y
+COPY index.html /var/www/html/
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+
+build dockerfile into an Image
+
+# docker build -t myimage01 .
+
+# docker images
+# docker run -d -t myimage01
+
+Demo2 : Deploy java application of tomcat container:
+
+# git clone https://github.com/Sonal0409/AnsibleDockerdemo.git
+
+# cd AnsibleDockerdemo
+
+# docker build -t myaddressbook .
+
+# docker run -d -P myaddressbook
+
+# docker ps -a 
+
+http://localhost:<port>/addressbook/
+
+
+git clone https://github.com/Sonal0409/Jenkins-python-Docker-demo.git
+cd Jenkins-python-Docker-demo
+docker build -t mypythonimage .
+docker images
+docker run -d -P mypythonimage
+docker ps -a
+cd
+git clone https://github.com/Sonal0409/nodejsappDockerfile.git
+cd nodejsappDockerfile
+docker build -t mynodeimage .
+docker images
+docker run -d -P mynodeimage
+docker ps -a
+
+
+
+JENKINS CONTAINER
+
+docker run -d --name jenkins -P jenkins/jenkins
+
+docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+
+
+
+
+
+
