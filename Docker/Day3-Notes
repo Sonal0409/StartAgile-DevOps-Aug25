@@ -1,0 +1,250 @@
+DOCKER COMPOSE TOOL
+==============================
+
+•	We have to install docker-compose tool in the docker host machine
+•	Using this tool we will write a muti container architecture file
+•	This file is written in YAML
+•	The name of the file by default is docker-compose.yml
+•	This file will create services
+•	Each service is a container 
+•	For each service we will mention, image Name, port details, environment details, network detail, volume details in the YAML
+•	After the save the file, using the compose tool command, we will run the file
+•	Now with single command - all the services(container) will get created in your custom network
+•	Advantage is we don't have to write docker run command for each container
+•	We can VC this file, any team member who will pull and run this compose YAMl file, will always get the same containers.
+•	A compose tool can build a docker and then run the image to give a container
+
+Install Docker Compose tool
+
+# curl -SL https://github.com/docker/compose/releases/download/v2.38.2/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
+
+# chmod +x /usr/local/bin/docker-compose
+
+
+
+YAML:  YAML aint a markup language OR yet another markup language
+
+It is not a programming language, scripting language
+It is just a way of storing the data like json , xml file
+
+YAML syntax:
+
+key: value 
+
+key is given to you by docker-compose tool
+
+value mostly is given by user
+
+
+A key can store a single value, list of values or again a key and value
+
+Example 1: A key storing a single value
+
+Company: Staragile
+Trainer: Sonal
+Training: Docker
+Time: 08pm
+Day: Weekday
+
+
+EXAMPLE 2: A key storing a list of values
+
+Company: Staragile
+Trainers: 
+	- Sonal
+	- trainer1
+	- trainer2
+Trainings: 
+	- Docker
+	- Kubernetes
+	- Jenkins
+Time: ["8PM","7AM"]
+
+Example 3: A key storing again a key and value
+
+Company: Staragile
+Trainers: 
+ 	- name: sonal
+   	   email: dev@gmail.com
+	- name: trainer1
+ 	  email: dev@gmail.com
+time:
+	- day: weekday
+	- time: 8PM
+
+
+# mkdir mycomposefiles
+# cd mycomposefiles
+
+# vim docker-compose.yml
+
+volumes:
+  mydata:
+  myvol2:
+services:
+  cont1:
+    image: httpd
+    ports:
+      - 8989:80
+    volumes:
+      - myvol2:/usr/local/apache2/htdocs/
+  cont2:
+    image: nginx
+    ports:
+      - 8888:80
+  cont3:
+    image: tomcat
+    ports:
+      - 8787:8080
+  cont4:
+    image: ubuntu
+    command: sleep infinity
+  db:
+    image: mysql:5.6
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - mydata:/var/lib/mysql
+
+
+# docker-compose up -d
+
+# docker-compose ps -a
+
+# docker-compose down
+
+Build image and create container using docker-compose
+
+ git clone https://github.com/Sonal0409/Jenkins-python-Docker-demo.git
+ cd Jenkins-python-Docker-demo
+ vim docker-compose.yml
+ networks:
+  mynet1:
+ services:
+  mypycont:
+    build: .
+    image: mypythonimage
+    ports:
+      - 8787:8080
+    networks:
+      - mynet1
+
+save the files
+
+# docker-compose up -d
+
+========================
+
+Push Image to DockerHUB:
+
+160  docker login -u <dockerhub-account>
+163  docker tag mypythonimage <dockerhub_account>/mypythonimage
+164  docker images
+166  docker push <dockerhub_account>/mypythonimage
+
+
+Docker VOLUMES:
+Docker Volumes:
+
+It is a concept in which we preserve the data of container in the volumes created on docker host
+
+Whenver a containe ris deleted, the data in the container is also lost. In order to overcome this problem, we have docker volumes
+
+Volumes needs to be mounted on the container directory. whatever is there in the container directory will be preserved on the volume directory
+
+Voluems ar eof 2 types:
+
+- named volume
+ in this volume a specific name is given to volume directory and volume is created in docker area (/var/lib/docker)
+
+- bind mount
+  in this volume the data of the container can be preserved in any directory of the host machine
+there is no name given to the volume
+
+Note that: you can use volume to place/copy files on the container directory also.
+
+Volume mapping has to be done, during container runtime.
+
+Named volumes
+
+1. Create a docker volume that will preserve the data of a container
+
+> Create a named volume
+
+# docker volume ls
+# docker volume create myvol
+
+> where is the volume created
+
+# docker volume inspect myvol
+
+/var/lib/docker/volumes/myvol/_data
+
+> mount the volume on the container directory
+
+ docker run -it --name cont1 -v myvol:/tmp ubuntu
+
+> preserve data from contaienr to volume
+
+create some files in container and come out of container
+
+> delete container.. data will be there in volume directory
+
+# docker rm -f cont1
+
+# cd /var/lib/docker/volumes/myvol/_data
+
+=============================================
+
+2.  DEMO 2: Containers sharing data:
+
+docker volume create myvol2
+docker volume ls
+docker volume inspect myvol2
+docker run -it --name data -v myvol2:/tmp ubuntu
+you will be inside the container 
+cd /tmp
+touch index.html
+date >> index.html
+cat index.html 
+
+Come out of container : press keys  CTRL pq 
+
+Check index.html file is in volume directory
+
+cd /var/lib/docker/volumes/myvol2/_data
+
+ls
+
+Create container 2
+
+docker run -d --name web -v myvol2:/usr/share/nginx/html   -P nginx
+
+docker ps -a
+
+go to browser : localhost:<portnumber>
+
+you will see date on the browser
+
+
+Bind Mounts:
+===================
+
+In this case, data will be saved on any directory of host machine
+
+I have got source code for webapplication in github
+
+https://github.com/Sonal0409/ecomm.git
+
+we will clone the code in docker host in a directory
+
+we will mount the directory on a container with image httpd
+
+We will access the application on the container form browser of our machine
+==============================
+
+
+
+
+
+
