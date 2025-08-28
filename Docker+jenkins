@@ -1,0 +1,131 @@
+Create the following pipeline in jenkins
+
+pipeline{
+    tools{
+        maven 'mymaven'
+    }
+    agent any
+    stages{
+        stage('clone repo'){
+            steps{
+                git 'https://github.com/Sonal0409/DevOpsCodeDemo.git'
+            }
+        }
+        stage('Build Code'){
+            steps{
+                sh 'mvn package'
+            }
+        }
+        
+        
+        stage('build Image'){
+          
+            steps{
+                sh 'cp /var/lib/jenkins/workspace/CICDpipeline/target/addressbook.war .'
+                sh 'docker build -t myaddressbook .'
+            }
+        }
+        
+        stage('push Image'){
+            steps{
+
+withCredentials([string(credentialsId: 'DOCKER_HUB_PASWD', variable: 'DOCKER_HUB_PASWD')]) {
+                sh 'docker login -u edu123 -p ${DOCKER_HUB_PASWD}'
+                }
+              
+                sh 'docker tag myaddressbook edu123/myaddressbook'
+                sh 'docker push edu123/myaddressbook'
+            }
+        }
+        
+        stage('Deploy container'){
+            steps{
+                sh 'docker run -d -P edu123/myaddressbook'
+            }
+        }
+    }
+}
+
+
+Before executing the pipleine give jenkins permsision to run docker commands
+ chmod 777 /var/run/docker.sock
+
+
+
+
+=====================================================
+Dynamic Agents:
+
+
+Dynamic agent - Docker Agent Pipeline
+
+Static Agents: Agents that are always available even if no job is dispatched on them.
+Agents that are constant and are connected to master node
+
+Dynamic Agents: Agents which provide us platform or an environment that is created upon running of the pipeline job
+The tasks are executed on the dynamic agent
+Agent get deleted once the pipeline has completed
+The workspace and console output will be visible on the master node itself.
+Life of the dynamic agent is only till the pipeline job is running.
+So everytime we run the pipeline we get a new agent
+We don't have to spend time connecting master to worker agent.
+Automatically the controller will create the agent and run the jobs on it and delete the agent.
+
+The best dynamic agent is a docker container. These are very easy to create and terminate.
+
+When working with docker remember:
+ Docker Image - you can consider it to be a binary file which consists of information of what should be present on a docker container.
+Image is given to us by docker.
+Docker Container: It is a running instance which comes pre-installed with your desired packages/applications
+In the container we can connect and run all the jobs
+
+
+
+
+Setup Jenkins Server for docker agent
+
+Connect to Jenkins Server via the terminal:
+
+# sudo su -
+
+# apt-get update && apt-get install docker.io -y
+
+Connect to jenkins dashboard → manage Jenkins → go to plugins → go to available plugins → search for docker pipeline plugin → select it → click on Install button 
+After installing the plugin -> go to the terminal and execute the command:
+# systemctl restart jenkins 
+
+By default docker commands can be run by a user with root permissions 
+However we can modify these permissions for sometime to run docker commands by any user
+
+# chmod -R 777 /var/run/docker.sock  
+
+Now you are ready to run the Jenkins pipeline on dynamic agents.  
+
+
+Example 1 Maven - Dynamic Agent Pipeline
+pipeline that will create a dynamic agent, run some print commands on the container and delete container
+
+pipeline {
+    agent {
+        docker {
+            image 'maven:3.9.6-eclipse-temurin-17' // Official Maven image with JDK 17
+          //  args '-u root -v /root/.m2:/root/.m2'          // Cache Maven dependencies across builds
+        }
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building the project with Maven...'
+             //   sh 'mvn clean install'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Running unit tests...'
+            //    sh 'mvn test'
+            }
+        }
+    }
+}
